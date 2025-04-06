@@ -70,6 +70,12 @@
       "name": "Музыка",
       "type": "folder",
       "parentId": 9
+    },
+    {
+      "id": 12,
+      "name": "Изображение.jpg",
+      "type": "image",
+      "parentId": null
     }
   ]
 }

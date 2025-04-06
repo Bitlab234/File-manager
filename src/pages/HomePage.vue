@@ -11,12 +11,14 @@ const files = ref<FileItem[]>([])
 const router = useRouter()
 
 onMounted(async () => {
-  files.value = await fetchFiles(null)
+  const allFiles = await fetchFiles(null)
+  files.value = allFiles.filter(file => file.parentId === null)
 })
 
 function open(item: FileItem) {
   if (item.type === 'folder') {
-    router.push(`/folder/${item.id}`)
+    const folderName = encodeURIComponent(item.name.toLowerCase()) // Преобразуем в нижний регистр и кодируем для URL
+    router.push(`/${folderName}`)
   } else {
     router.push(`/file/${item.id}`)
   }

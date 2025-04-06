@@ -9,7 +9,7 @@ const routes = [
   { path: '/', component: HomePage },
   { path: '/login', component: LoginPage },
   { path: '/register', component: RegisterPage },
-  { path: '/folder/:id', component: FolderPage, props: true },
+  { path: '/:folderName', component: FolderPage, name: 'folder' },
   { path: '/file/:id', component: FilePage, props: true } // Маршрут для файла
 ]
 
