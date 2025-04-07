@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:latest
+    container_name: pg-container
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: fileManager
+      POSTGRES_USER: postgres
+    ports:
+      - "5437:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: always
+
+volumes:
+  pgdata:
+    driver: local

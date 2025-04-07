@@ -1,0 +1,9 @@
+Запуск фронта:
+
+json-server --watch db.json --port 4000
+npm run dev
+
+Запуск бэка:
+ Запуск бд:
+  docker-compose down -v         остановить и очистить контейнер
+  docker-compose up -d           запустить и заполнить контейнер
