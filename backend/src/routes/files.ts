@@ -3,6 +3,17 @@ import { pool } from '../db';
 
 const router = Router();
 
+// Получить все файлы без фильтрации
+router.get('/all', async (req, res) => {
+    try {
+      const result = await pool.query('SELECT * FROM files');
+      res.json(result.rows);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Ошибка при получении всех файлов' });
+    }
+});
+
 // Получить все файлы или только по parentId (если указан)
 router.get('/', async (req, res) => {
   const parentIdParam = req.query.parentId as string | undefined;

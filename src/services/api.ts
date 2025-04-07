@@ -3,6 +3,17 @@ import type { FileItem } from '@/types/file'
 
 const API_BASE = 'http://localhost:4001/files'
 
+// Функция для получения всех файлов
+export async function fetchAllFiles(): Promise<FileItem[]> {
+  try {
+    const response = await axios.get(`${API_BASE}/all`);  // Запрос на сервер
+    return response.data;
+  } catch (error) {
+    console.error('Ошибка при загрузке всех файлов:', error);
+    return [];
+  }
+}
+
 export async function fetchFiles(parentId: number | null): Promise<FileItem[]> {
   const url = parentId === null ? `${API_BASE}` : `${API_BASE}?parentId=${parentId}`
   const response = await axios.get(url)
