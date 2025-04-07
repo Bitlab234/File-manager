@@ -1,19 +1,22 @@
 import axios from 'axios'
-import { FileItem } from '@/types/file'
+import type { FileItem } from '@/types/file'
 
-const API_URL = 'http://localhost:4000'
+const API_BASE = 'http://localhost:4001/files'
 
-export async function fetchFiles(folderName: string | null) {
-  const response = await fetch(`${API_URL}/files${folderName ? `?name=${folderName}` : ''}`)
-  const files = await response.json()
-  return files;
+export async function fetchFiles(parentId: number | null): Promise<FileItem[]> {
+  const url = parentId === null ? `${API_BASE}` : `${API_BASE}?parentId=${parentId}`
+  const response = await axios.get(url)
+  return response.data
 }
 
 export async function fetchFileById(id: number): Promise<FileItem> {
-  const response = await axios.get(`${API_URL}/files/${id}`)
+  const response = await axios.get(`${API_BASE}/${id}`)
   return response.data
 }
 
 export async function updateFileContent(id: number, content: string): Promise<void> {
-  await axios.patch(`${API_URL}/files/${id}`, { content })
+  const response = await axios.patch(`${API_BASE}/${id}`, { content })
+  if (response.status !== 204) {
+    throw new Error('Ошибка при обновлении файла')
+  }
 }

@@ -6,8 +6,8 @@ import { onMounted, ref } from 'vue'
 import { fetchFiles } from '@/services/api'
 import type { FileItem } from '@/types/file'
 import { useRouter } from 'vue-router'
-
-const files = ref<FileItem[]>([])
+import FilesList from '@/pages/FilesList.vue';
+/*const files = ref<FileItem[]>([])
 const router = useRouter()
 
 onMounted(async () => {
@@ -22,7 +22,7 @@ function open(item: FileItem) {
   } else {
     router.push(`/file/${item.id}`)
   }
-}
+}*/
 </script>
 
 <template>
@@ -45,7 +45,8 @@ function open(item: FileItem) {
   
   <BannerWidget />
 
-  <div>
+  <FilesList />
+  <!--<div>
     <h1>Главная</h1>
     <ul style="list-style: none; padding-left: 20;">
       <li v-for="file in files" :key="file.id" @click="open(file)" style="margin-bottom: 4px; cursor: pointer;">
@@ -54,7 +55,7 @@ function open(item: FileItem) {
         {{ file.name }} ({{ file.type }})
       </li>
     </ul>
-  </div>
+  </div>-->
 
   <Footer />
 </template>

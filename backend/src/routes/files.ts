@@ -3,19 +3,26 @@ import { pool } from '../db';
 
 const router = Router();
 
+// Получить все файлы или только по parentId (если указан)
 router.get('/', async (req, res) => {
-  const name = req.query.name as string | undefined;
+  const parentIdParam = req.query.parentId as string | undefined;
   try {
-    const query = name
-      ? 'SELECT * FROM files WHERE name = $1'
-      : 'SELECT * FROM files';
-    const result = await pool.query(query, name ? [name] : []);
-    res.json(result.rows);
+    if (parentIdParam === undefined) {
+      // Корневые файлы (где parentId IS NULL)
+      const result = await pool.query('SELECT * FROM files WHERE parentId IS NULL');
+      res.json(result.rows);
+    } else {
+      const parentId = parseInt(parentIdParam);
+      const result = await pool.query('SELECT * FROM files WHERE parentId = $1', [parentId]);
+      res.json(result.rows);
+    }
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: 'Ошибка при получении файлов' });
   }
 });
 
+// Получить файл по ID
 router.get('/:id', async (req, res) => {
   const id = parseInt(req.params.id);
   try {
@@ -25,10 +32,12 @@ router.get('/:id', async (req, res) => {
     }
     res.json(result.rows[0]);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: 'Ошибка при получении файла' });
   }
 });
 
+// Обновить содержимое файла (если бы был контент)
 router.patch('/:id', async (req, res) => {
   const id = parseInt(req.params.id);
   const { content } = req.body;
@@ -36,6 +45,7 @@ router.patch('/:id', async (req, res) => {
     await pool.query('UPDATE files SET content = $1 WHERE id = $2', [content, id]);
     res.sendStatus(204);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: 'Ошибка при обновлении файла' });
   }
 });
