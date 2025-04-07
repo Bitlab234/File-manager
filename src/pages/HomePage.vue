@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import Header from './templates/Header.vue';
-import Footer from './templates/Footer.vue';
-import BannerWidget from './templates/BannerWidget.vue';
+import Header from './templates/header.vue';
+import Footer from './templates/footer.vue';
+import BannerWidget from './templates/bannerWidget.vue';
 import { onMounted, ref } from 'vue'
 import { fetchFiles } from '@/services/api'
 import type { FileItem } from '@/types/file'

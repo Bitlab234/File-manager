@@ -1,10 +1,25 @@
 <template>
   <div>
-    <h1>Папка: {{ folderName }}</h1>
+    <h1>Папка: {{ decodedPath }}</h1>
     <div v-if="files.length">
-      <div v-for="file in files" :key="file.id">
-        <router-link :to="`/file/${file.id}`">{{ file.name }}</router-link>
-      </div>
+      <ul style="list-style: none; padding-left: 20px;">
+        <li
+          v-for="file in files"
+          :key="file.id"
+          @click="open(file)"
+          style="margin-bottom: 6px; cursor: pointer;"
+        >
+          <img
+            v-if="file.type === 'folder'"
+            src="/src/assets/images/ico_folder.jpg"
+            alt="Folder"
+            width="18"
+            height="18"
+            style="vertical-align: middle; margin-right: 8px;"
+          />
+          {{ file.name }}
+        </li>
+      </ul>
     </div>
     <div v-else>
       <p>Папка пуста или не найдена.</p>
@@ -13,39 +28,67 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { ref, onMounted, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { fetchFiles } from '@/services/api';
-import { FileItem } from '@/types/file';
+import type { FileItem } from '@/types/file';
 
 const route = useRoute();
-const folderName = route.params.folderName as string; // Получаем имя папки из маршрута
+const router = useRouter();
+
 const files = ref<FileItem[]>([]);
+const currentFolder = ref<FileItem | null>(null);
+const decodedPath = ref<string>('');
 
-onMounted(async () => {
+// Открытие папки или файла
+function open(item: FileItem) {
+  if (item.type === 'folder') {
+    const segment = encodeURIComponent(item.name.toLowerCase());
+    const folderPath = route.params.folderPath as string || '';
+    const newPath = folderPath ? `${folderPath}/${segment}` : segment;
+    router.push(`/${newPath}`);
+  } else {
+    router.push(`/file/${item.id}`);
+  }
+}
+
+// Загрузка файлов по пути
+async function loadFiles() {
+  const folderPath = route.params.folderPath as string || '';
+  decodedPath.value = decodeURIComponent(folderPath);
+
   try {
-    // Получаем все файлы
-    const allFiles = await fetchFiles(null); 
-    
-    console.log('Все файлы:', allFiles); // Отладочный вывод
+    const allFiles = await fetchFiles(null);
+    const segments = decodedPath.value.split('/').filter(Boolean);
+    let parentId: number | null = null;
+    let folder: FileItem | undefined;
 
-    // Ищем папку с нужным именем и parentId === null
-    const parentFolder = allFiles.find(
-      (file) => file.name.toLowerCase() === folderName.toLowerCase() && file.parentId === null
-    );
+    for (const segment of segments) {
+      folder = allFiles.find(file =>
+        file.name.toLowerCase() === segment.toLowerCase() &&
+        file.type === 'folder' &&
+        file.parentId === parentId
+      );
 
-    console.log('Найденная папка:', parentFolder); // Отладочный вывод
+      if (!folder) {
+        console.error('Папка не найдена:', segment);
+        files.value = [];
+        return;
+      }
 
-    if (parentFolder) {
-      // Фильтруем файлы по parentId найденной папки
-      files.value = allFiles.filter((file) => file.parentId === parentFolder.id);
-      console.log('Файлы в папке:', files.value); // Отладочный вывод
-    } else {
-      console.error('Папка не найдена');
-      files.value = []; // Папка не найдена
+      parentId = folder.id;
     }
+
+    currentFolder.value = folder || null;
+    files.value = allFiles.filter(file => file.parentId === parentId);
   } catch (error) {
     console.error('Ошибка при загрузке файлов:', error);
+    files.value = [];
   }
-});
+}
+
+onMounted(loadFiles);
+
+// Следим за изменением маршрута
+watch(() => route.fullPath, loadFiles);
 </script>

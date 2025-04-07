@@ -61,7 +61,7 @@
     },
     {
       "id": 10,
-      "name": "Музыка",
+      "name": "Книги",
       "type": "folder",
       "parentId": 9
     },
@@ -76,6 +76,12 @@
       "name": "Изображение.jpg",
       "type": "image",
       "parentId": null
+    },
+    {
+      "id": 13,
+      "name": "Даниель Де Фо: Робинзон Крузо",
+      "type": "pdf",
+      "parentId": 10
     }
   ]
 }
