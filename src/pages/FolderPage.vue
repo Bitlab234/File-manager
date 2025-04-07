@@ -1,33 +1,7 @@
-<template>
-  <div>
-    <h1>Папка: {{ decodedPath }}</h1>
-    <div v-if="files.length">
-      <ul style="list-style: none; padding-left: 20px;">
-        <li
-          v-for="file in files"
-          :key="file.id"
-          @click="open(file)"
-          style="margin-bottom: 6px; cursor: pointer;"
-        >
-          <img
-            v-if="file.type === 'folder'"
-            src="/src/assets/images/ico_folder.jpg"
-            alt="Folder"
-            width="18"
-            height="18"
-            style="vertical-align: middle; margin-right: 8px;"
-          />
-          {{ file.name }}
-        </li>
-      </ul>
-    </div>
-    <div v-else>
-      <p>Папка пуста или не найдена.</p>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
+import Header from './templates/header.vue';
+import Footer from './templates/footer.vue';
+import BannerWidget from './templates/bannerWidget.vue';
 import { ref, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { fetchFiles } from '@/services/api';
@@ -92,3 +66,80 @@ onMounted(loadFiles);
 // Следим за изменением маршрута
 watch(() => route.fullPath, loadFiles);
 </script>
+
+<template>
+  <Header />
+  <BannerWidget />
+
+  <div class="action-buttons">
+    <img src="/src/assets/images/ico_upload.gif" alt="Upload" />
+    <button>
+      Загрузить файл
+    </button>
+    <img src="/src/assets/images/ico_plus.gif" alt="New Folder" />
+    <button>
+      Создать папку
+    </button>
+    <img src="/src/assets/images/ico_access.gif" alt="Access" />
+    <button>
+      Настроить доступ
+    </button>
+  </div>
+
+  <div>
+    <h1>Папка: {{ decodedPath }}</h1>
+    <div v-if="files.length">
+      <ul style="list-style: none; padding-left: 20px;">
+        <li v-for="file in files" :key="file.id" @click="open(file)" style="margin-bottom: 6px; cursor: pointer;">
+          <img v-if="file.type === 'folder'" src="/src/assets/images/ico_folder.jpg" alt="Folder" width="18" height="18"
+            style="vertical-align: middle; margin-right: 8px;" />
+          {{ file.name }}
+        </li>
+      </ul>
+    </div>
+    <div v-else>
+      <p>Папка пуста или не найдена.</p>
+    </div>
+  </div>
+
+  <Footer />
+</template>
+
+<style>
+.action-buttons {
+  position: fixed;
+  top: 110px !important;
+  right: 0px;
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 6px;
+  z-index: 1000;
+}
+
+.action-buttons button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px;
+  background-color: #333;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.action-buttons button:hover {
+  background-color: #555;
+  color: white;
+}
+
+.action-buttons img {
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+}
+</style>
