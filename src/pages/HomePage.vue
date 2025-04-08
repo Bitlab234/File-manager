@@ -2,6 +2,7 @@
 import Header from './templates/header.vue';
 import Footer from './templates/footer.vue';
 import BannerWidget from './templates/bannerWidget.vue';
+import buttonBar from './templates/buttonBar.vue';
 import { onMounted, ref } from 'vue'
 import { fetchFiles } from '@/services/api'
 import type { FileItem } from '@/types/file'
@@ -27,24 +28,8 @@ function open(item: FileItem) {
 
 <template>
   <Header />
-  
-  <div class="action-buttons">
-    <img src="/src/assets/images/ico_upload.gif" alt="Upload" />
-    <button>
-      Загрузить файл
-    </button>
-    <img src="/src/assets/images/ico_plus.gif" alt="New Folder" />
-    <button>
-      Создать папку
-    </button>
-    <img src="/src/assets/images/ico_access.gif" alt="Access" />
-    <button>
-      Настроить доступ
-    </button>
-  </div>
-  
   <BannerWidget />
-
+  <buttonBar />
   <FilesList />
   <!--<div>
     <h1>Главная</h1>
@@ -61,39 +46,4 @@ function open(item: FileItem) {
 </template>
 
 <style>
-.action-buttons {
-  position: fixed;
-  top: 110px !important;
-  right: 0px;
-  align-items: center;
-  flex-direction: row;
-  gap: 10px;
-  padding: 10px;
-  border-radius: 6px;
-  z-index: 1000;
-}
-
-.action-buttons button {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 5px 10px;
-  background-color: #333;
-  border: none;
-  border-radius: 4px;
-  color: white;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.action-buttons button:hover {
-  background-color: #333;
-  color: white;
-}
-
-.action-buttons img {
-  width: 16px;
-  height: 16px;
-  vertical-align: middle;
-}
 </style>
