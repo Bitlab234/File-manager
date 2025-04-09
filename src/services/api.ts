@@ -26,6 +26,7 @@ export async function fetchFileById(id: number): Promise<FileItem> {
 }
 
 export async function updateFileContent(id: number, content: string): Promise<void> {
+  console.log("updateFileContent");
   const response = await axios.patch(`${API_BASE}/${id}`, { content })
   if (response.status !== 204) {
     throw new Error('Ошибка при обновлении файла')

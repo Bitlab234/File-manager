@@ -41,6 +41,7 @@
 
       <!-- Остальное -->
       <div v-else>Невозможно отобразить файл.</div>
+      <button @click="saveTextFile">Сохранить изменения</button>
     </div>
   </template>
 </template>
@@ -75,6 +76,42 @@ onMounted(async () => {
     loading.value = false;
   }
 });
+
+const saveTextFile = async () => {
+  if (file.value && file.value.url) {
+    try {
+      // Логируем id файла
+      console.log('id файла:', file.value.id);
+
+      // Логируем содержимое перед отправкой
+      console.log('Содержимое файла, которое отправляется:', textContent.value);
+      
+      console.log(`http://localhost:4001/files/${file.value.id}`);
+      const response = await fetch(`http://localhost:4001/files/${file.value.id}`, {
+        method: 'PUT', // или 'POST', в зависимости от вашей логики на сервере
+        headers: {
+          'Content-Type': 'text/plain',
+        },
+        body: textContent.value // передаем контент в виде JSON
+      });
+
+      // Логируем статус ответа
+      console.log('Ответ от сервера:', response);
+
+      if (response.ok) {
+        alert('Файл успешно сохранен!');
+      } else {
+        alert('Произошла ошибка при сохранении файла.');
+      }
+    } catch (err) {
+      console.error('Ошибка при сохранении файла:', err);
+      alert('Произошла ошибка при сохранении файла.');
+    }
+  } else {
+    console.log('Файл не найден или URL отсутствует');
+  }
+};
+
 </script>
 
 <style scoped>
