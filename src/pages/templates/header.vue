@@ -3,10 +3,22 @@
         <div class="logo">
             <h1>BalaCloud</h1>
         </div>
-        <div class="search">
-            <input type="text" v-model="query" placeholder="Поиск файлов..." @keyup.enter="searchFiles" />
-            <button @click="searchFiles">Искать</button>
+
+        <div class="search-container">
+            <input type="text" v-model="query" placeholder="Поиск файлов..." @input="searchFiles"
+                class="search-input" />
+
+            <div v-if="searchResults.length" class="results">
+                <ul>
+                    <li v-for="file in searchResults" :key="file.id">
+                        <router-link :to="`/file/${file.id}`">
+                            <strong>{{ file.name }}</strong> (ID: {{ file.id }})
+                        </router-link>
+                    </li>
+                </ul>
+            </div>
         </div>
+
         <nav class="navigation">
             <ul>
                 <li><router-link to="/">Войти</router-link></li>
@@ -17,35 +29,30 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import axios from 'axios';
 
-// Реактивная переменная для хранения текста поиска
 const query = ref('');
+const searchResults = ref([]);
 
-// Функция для обработки поиска файлов
-
+// Автоматический поиск при изменении
 const searchFiles = async () => {
-    if (!query.value.trim()) return;
-    console.log('query', query);
+    if (!query.value.trim()) {
+        searchResults.value = [];
+        return;
+    }
+
     try {
         const response = await axios.get('http://localhost:4001/files/search', {
             params: { q: query.value }
         });
 
-        console.log('resp', response);
-
-        // Получаем только id из результатов и выводим
-        const fileIds = response.data.map(file => file.id);
-        console.log('ID найденных файлов:', fileIds);
-
-        // можно сохранить fileIds в реактивную переменную если нужно
-        // searchResults.value = fileIds;
+        // Обрезаем до первых 10 результатов
+        searchResults.value = response.data.slice(0, 10);
     } catch (error) {
         console.error('Ошибка при поиске:', error);
     }
 };
-
 </script>
 
 <style scoped>
@@ -56,37 +63,64 @@ const searchFiles = async () => {
     padding: 10px 20px;
     background-color: #333;
     color: white;
+    position: relative;
 }
 
-.search {
-    display: flex;
-    align-items: center;
-    gap: 5px;
+.logo h1 {
+    margin: 0;
+    font-size: 24px;
 }
 
-.search input {
-    padding: 5px 10px;
+.search-container {
+    position: relative;
+    width: 300px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 8px 12px;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
+    font-size: 14px;
 }
 
-.search button {
-    padding: 5px 10px;
-    background-color: #555;
-    border: none;
-    border-radius: 4px;
-    color: white;
+.results {
+    position: absolute;
+    top: 40px;
+    left: 0;
+    width: 100%;
+    background: white;
+    color: black;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.results ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.results li {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
     cursor: pointer;
+    transition: background-color 0.2s;
 }
 
-.search button:hover {
-    background-color: #777;
+.results li:hover {
+    background-color: #f0f0f0;
 }
 
 .navigation ul {
     list-style: none;
     display: flex;
     gap: 15px;
+    margin: 0;
+    padding: 0;
 }
 
 .navigation a {

@@ -36,24 +36,18 @@ router.get('/', async (req, res) => {
 // Поиск файлов по имени
 router.get('/search', async (req, res) => {
     console.log('Запрос поступил');
-    
-    const { q } = req.query; // текст запроса из фронта
-
-    console.log('Запрос с параметром q:', req.query.q);
-if (!q || typeof q !== 'string') {
-  return res.status(400).json({ error: 'Неверный параметр поиска' });
-}
+    const { q } = req.query;
 
     try {
-      const result = await pool.query(
-        `SELECT * FROM files WHERE LOWER(name) LIKE LOWER($1)`,
-        [`%${q}%`] // ищем вхождение
-      );
-  
-      res.json(result.rows);
+        const result = await pool.query(
+            `SELECT id, name FROM files WHERE LOWER(name) LIKE LOWER($1) LIMIT 10`,
+            [`%${q}%`]
+        );
+
+        res.json(result.rows);
     } catch (err) {
-      console.error('Ошибка при поиске файлов:', err);
-      res.status(500).json({ error: 'Ошибка при поиске файлов' });
+        console.error('Ошибка при поиске файлов:', err);
+        res.status(500).json({ error: 'Ошибка при поиске файлов' });
     }
 });
 
