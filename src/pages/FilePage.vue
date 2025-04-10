@@ -41,7 +41,7 @@
 
       <!-- Остальное -->
       <div v-else>Невозможно отобразить файл.</div>
-      <button @click="saveTextFile">Сохранить изменения</button>
+      <button v-if="file.type === 'text'" @click="saveTextFile">Сохранить изменения</button>
     </div>
   </template>
 </template>

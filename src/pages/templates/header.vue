@@ -1,87 +1,100 @@
 <template>
     <header class="header">
-      <div class="logo">
-        <h1>BalaCloud</h1>
-      </div>
-      <div class="search">
-        <input
-          type="text"
-          v-model="query"
-          placeholder="Поиск файлов..."
-          @keyup.enter="searchFiles"
-        />
-        <button @click="searchFiles">Искать</button>
-      </div>
-      <nav class="navigation">
-        <ul>
-          <li><router-link to="/">Войти</router-link></li>
-          <li><router-link to="/">Облачное хранилище</router-link></li>
-        </ul>
-      </nav>
+        <div class="logo">
+            <h1>BalaCloud</h1>
+        </div>
+        <div class="search">
+            <input type="text" v-model="query" placeholder="Поиск файлов..." @keyup.enter="searchFiles" />
+            <button @click="searchFiles">Искать</button>
+        </div>
+        <nav class="navigation">
+            <ul>
+                <li><router-link to="/">Войти</router-link></li>
+                <li><router-link to="/">Облачное хранилище</router-link></li>
+            </ul>
+        </nav>
     </header>
-  </template>
-  
-  <script setup>
-  import { ref } from 'vue';
-  
-  // Реактивная переменная для хранения текста поиска
-  const query = ref('');
-  
-  // Функция для обработки поиска файлов
-  const searchFiles = () => {
-    console.log('Поиск по запросу:', query.value);
-    // Логика для поиска файлов, например, через API
-  };
-  </script>
-  
-  <style scoped>
-  .header {
+</template>
+
+<script setup>
+import { ref } from 'vue';
+import axios from 'axios';
+
+// Реактивная переменная для хранения текста поиска
+const query = ref('');
+
+// Функция для обработки поиска файлов
+
+const searchFiles = async () => {
+    if (!query.value.trim()) return;
+    console.log('query', query);
+    try {
+        const response = await axios.get('http://localhost:4001/files/search', {
+            params: { q: query.value }
+        });
+
+        console.log('resp', response);
+
+        // Получаем только id из результатов и выводим
+        const fileIds = response.data.map(file => file.id);
+        console.log('ID найденных файлов:', fileIds);
+
+        // можно сохранить fileIds в реактивную переменную если нужно
+        // searchResults.value = fileIds;
+    } catch (error) {
+        console.error('Ошибка при поиске:', error);
+    }
+};
+
+</script>
+
+<style scoped>
+.header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 10px 20px;
     background-color: #333;
     color: white;
-  }
-  
-  .search {
+}
+
+.search {
     display: flex;
     align-items: center;
     gap: 5px;
-  }
-  
-  .search input {
+}
+
+.search input {
     padding: 5px 10px;
     border: none;
     border-radius: 4px;
-  }
-  
-  .search button {
+}
+
+.search button {
     padding: 5px 10px;
     background-color: #555;
     border: none;
     border-radius: 4px;
     color: white;
     cursor: pointer;
-  }
-  
-  .search button:hover {
+}
+
+.search button:hover {
     background-color: #777;
-  }
-  
-  .navigation ul {
+}
+
+.navigation ul {
     list-style: none;
     display: flex;
     gap: 15px;
-  }
-  
-  .navigation a {
+}
+
+.navigation a {
     color: white;
     text-decoration: none;
-  }
-  
-  .navigation a:hover {
+}
+
+.navigation a:hover {
     text-decoration: underline;
-  }
-  </style>
-  
+}
+</style>
