@@ -2,8 +2,8 @@
     <div class="auth-container">
         <h2>Вход</h2>
         <form @submit.prevent="handleLogin">
-            <input v-model="email" type="email" placeholder="Email" required />
-            <input v-model="password" type="password" placeholder="Пароль" required />
+            <input v-model="email" type="email" placeholder="Login" required />
+            <input v-model="password" type="password" placeholder="Password" required />
             <button type="submit">Войти</button>
         </form>
         <p>Нет аккаунта? <router-link to="/register">Зарегистрироваться</router-link></p>
@@ -12,13 +12,19 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router';
+
+const route = useRoute();
+const router = useRouter();
 
 const email = ref('')
 const password = ref('')
 
 function handleLogin() {
     console.log('Логин:', email.value, password.value)
-    // Тут можешь подключить свой API для логина
+    // Подключить свой API для логина
+    // Если логин успешен, перенаправляем пользователя, позже проверку добавить
+    router.push('/adminPanel')
 }
 </script>
 
@@ -36,6 +42,7 @@ input {
     display: block;
     width: 100%;
     padding: 10px;
+    box-sizing: border-box;
     margin-bottom: 16px;
 }
 

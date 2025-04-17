@@ -21,7 +21,7 @@
 
         <nav class="navigation">
             <ul>
-                <li><router-link to="/">Войти</router-link></li>
+                <li><router-link to="/login">Войти</router-link></li>
                 <li><router-link to="/">Облачное хранилище</router-link></li>
             </ul>
         </nav>

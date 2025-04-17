@@ -7,8 +7,8 @@ CREATE TABLE IF NOT EXISTS admins (
 
 INSERT INTO admins (username, password)
 VALUES 
-  ('admin1', 'password1'),
-  ('admin2', 'password2')
+  ('admin1@admin.admin', '$2b$10$NzLXwgCS4IwiYqufdfFReOk.whfB4povg4cImgy9uMaucPr8bzQOW'),
+  ('admin2@admin.admin', '$2b$10$cSJZCkgacSSEq99TCA0mGuk1ZaafA/YU6T/iOsQb.KovwezUPmU.i')
 ON CONFLICT (username) DO NOTHING;
 
 CREATE TABLE IF NOT EXISTS files (
@@ -47,3 +47,10 @@ VALUES
   ('Viktor_Cojj_-_Kukushka_28567717.mp3', 'audio', '/backend/uploads/audio/Viktor_Cojj_-_Kukushka_28567717.mp3', 16),
   ('ZHenya_Trofimov_i_Komnata_kultury_-_Poezda_78454233.mp3', 'audio', '/backend/uploads/audio/ZHenya_Trofimov_i_Komnata_kultury_-_Poezda_78454233.mp3', 17)
 ON CONFLICT DO NOTHING;
+
+CREATE TABLE IF NOT EXISTS file_actions (
+  id SERIAL PRIMARY KEY,
+  file_id INTEGER REFERENCES files(id) ON DELETE CASCADE,
+  action_type VARCHAR(50) NOT NULL, -- 'open', 'download', 'edit'
+  action_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
