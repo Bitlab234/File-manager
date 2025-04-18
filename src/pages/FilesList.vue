@@ -23,7 +23,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { fetchFiles } from '@/services/api'; // Импортируем функцию для запроса файлов
+import { logAction, fetchFiles } from '@/services/api'; // Импортируем функцию для запроса файлов
 import { useRouter } from 'vue-router'; // Для перехода по маршруту
 
 const files = ref([]); // Массив для хранения файлов
@@ -32,14 +32,14 @@ const router = useRouter(); // Используем router для переход
 // Запрашиваем файлы с бэкенда при монтировании компонента
 onMounted(async () => {
     try {
-        files.value = await fetchFiles(null); // Замените null на parentId, если нужно
+        files.value = await fetchFiles(null); // null для корня папки
     } catch (error) {
         console.error('Ошибка при загрузке файлов:', error);
     }
 });
 
 // Обработка клика по файлу или папке
-function open(item) {
+async function open(item) {
     if (item.type === 'folder') {
         // Если папка, формируем маршрут по имени папки
         const folderName = encodeURIComponent(item.name.toLowerCase()); // Преобразуем в нижний регистр и кодируем для URL
@@ -48,5 +48,6 @@ function open(item) {
         // Если файл, переходим по маршруту файла
         router.push(`/file/${item.id}`); // Переходим по маршруту файла
     }
+    await logAction(item.id, 'open');
 }
 </script>

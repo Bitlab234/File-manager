@@ -32,3 +32,26 @@ export async function updateFileContent(id: number, content: string): Promise<vo
     throw new Error('Ошибка при обновлении файла')
   }
 }
+
+export const logAction = async (fileId, actionType) => {
+  try {
+    const response = await fetch('http://localhost:4001/api/actions/log', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        file_id: fileId,
+        action_type: actionType,
+      }),
+    });
+
+    if (!response.ok) {
+      console.error('Ошибка при записи действия:', response.statusText);
+    } else {
+      console.log('Действие записано');
+    }
+  } catch (err) {
+    console.error('Ошибка при отправке действия:', err);
+  }
+};

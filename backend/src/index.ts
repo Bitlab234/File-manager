@@ -56,6 +56,40 @@ app.put('/files/:id', async (req, res) => {
 // Подключаем маршруты
 app.use('/files', fileRoutes);
 
+//для админ панели
+app.get('/api/files', async (req, res) => {
+    const result = await pool.query('SELECT * FROM files');
+    res.json(result.rows);
+});
+
+app.get('/api/actions', async (req, res) => {
+    const result = await pool.query('SELECT * FROM file_actions');
+    res.json(result.rows);
+});
+
+app.post('/api/actions/log', async (req, res) => {
+    const { file_id, action_type } = req.body;
+
+    if (!file_id || !action_type) {
+        return res.status(400).json({ error: 'file_id и action_type обязательны' });
+    }
+
+    try {
+        const result = await pool.query(
+            `INSERT INTO file_actions (file_id, action_type) 
+             VALUES ($1, $2) 
+             RETURNING *`,
+            [file_id, action_type]
+        );
+
+        res.status(201).json(result.rows[0]);
+    } catch (err) {
+        console.error('Ошибка при добавлении действия:', err);
+        res.status(500).json({ error: 'Ошибка сервера при добавлении действия' });
+    }
+});
+
+
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });

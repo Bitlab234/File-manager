@@ -50,4 +50,9 @@ button {
     padding: 10px 20px;
     width: 100%;
 }
+
+body {
+    background-color: #333; /* Тёмный фон для всей страницы */
+    color: white; /* Белый цвет текста для контраста */
+}
 </style>

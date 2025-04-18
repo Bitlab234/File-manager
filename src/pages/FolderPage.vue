@@ -5,7 +5,7 @@ import BannerWidget from './templates/bannerWidget.vue';
 import buttonBar from './templates/buttonBar.vue';
 import { ref, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { fetchFiles, fetchAllFiles } from '@/services/api'; // Теперь используем fetchAllFiles
+import { logAction, fetchFiles, fetchAllFiles } from '@/services/api';
 import type { FileItem } from '@/types/file';
 
 const route = useRoute();
@@ -16,7 +16,7 @@ const currentFolder = ref<FileItem | null>(null);
 const decodedPath = ref<string>('');
 
 // Открытие папки или файла
-function open(item: FileItem) {
+async function open(item: FileItem) {
   console.log('Открытие:', item);
   if (item.type === 'folder') {
     const segment = encodeURIComponent(item.name.toLowerCase());
@@ -28,6 +28,7 @@ function open(item: FileItem) {
     console.log(`Открываем файл с id ${item.id}`);
     router.push(`/file/${item.id}`);
   }
+  await logAction(item.id, 'open');
 }
 
 // Загрузка файлов по пути

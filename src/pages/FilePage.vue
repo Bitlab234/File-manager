@@ -49,7 +49,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import { fetchFileById } from '@/services/api';
+import { logAction, fetchFileById } from '@/services/api';
 import type { FileItem } from '@/types/file';
 
 const route = useRoute();
@@ -110,8 +110,8 @@ const saveTextFile = async () => {
   } else {
     console.log('Файл не найден или URL отсутствует');
   }
+  await logAction(file.value.id, 'edit');
 };
-
 </script>
 
 <style scoped>

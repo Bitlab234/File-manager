@@ -13,13 +13,13 @@
                     <th>Действия</th>
                 </tr>
             </thead>
-            <!--<tbody>
+            <tbody>
                 <tr v-for="file in files" :key="file.id">
                     <td>{{ file.name }}</td>
                     <td>{{ file.type }}</td>
                     <td>{{ file.url }}</td>
                 </tr>
-            </tbody>-->
+            </tbody>
         </table>
 
         <!-- Таблица действий -->
@@ -33,63 +33,38 @@
                     <th>Время действия</th>
                 </tr>
             </thead>
-            <!--<tbody>
+            <tbody>
                 <tr v-for="action in actions" :key="action.id">
                     <td>{{ action.id }}</td>
                     <td>{{ action.file_id }}</td>
                     <td>{{ action.action_type }}</td>
                     <td>{{ action.action_time }}</td>
                 </tr>
-            </tbody>-->
+            </tbody>
         </table>
     </div>
 </template>
 
-<!--<script>
-import axios from 'axios';
+<script lang="ts" setup>
+import { ref, onMounted } from 'vue'
+import axios from 'axios'
 
-export default {
-    data() {
-        return {
-            files: [],
-            actions: [],
-        };
-    },
-    created() {
-        this.fetchFiles();
-        this.fetchActions();
-    },
-    methods: {
-        async fetchFiles() {
-            try {
-                const response = await axios.get('http://localhost:4000/api/files');
-                this.files = response.data;
-            } catch (error) {
-                console.error('Ошибка при загрузке файлов:', error);
-            }
-        },
-        async fetchActions() {
-            try {
-                const response = await axios.get('http://localhost:4000/api/file-actions');
-                this.actions = response.data;
-            } catch (error) {
-                console.error('Ошибка при загрузке действий:', error);
-            }
-        },
-        async logAction(fileId, actionType) {
-            try {
-                await axios.post('http://localhost:4000/api/file-actions', {
-                    file_id: fileId,
-                    action_type: actionType,
-                });
-                this.fetchActions(); // Обновить таблицу действий
-            } catch (error) {
-                console.error('Ошибка при записи действия:', error);
-            }
-        },
-    },
-};
-</script>-->
+const files = ref([])
+const actions = ref([])
+
+onMounted(async () => {
+  try {
+    const filesRes = await axios.get('http://localhost:4001/api/files')
+    files.value = filesRes.data
+
+    const actionsRes = await axios.get('http://localhost:4001/api/actions')
+    actions.value = actionsRes.data
+  } catch (error) {
+    console.error('Ошибка при загрузке данных:', error)
+  }
+})
+</script>
+
 
 <style scoped>
 table {
