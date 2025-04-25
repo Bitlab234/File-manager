@@ -6,26 +6,26 @@ import { pool } from './db';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import cookieParser from 'cookie-parser';
+import setupSwagger from './swagger';
 
 const app = express();
 const PORT = 4001;
 const fs = require('fs');
 const SECRET = 'kjasdhf98n4c8h2f09hajsdhf9834hf028fhq0938';
 
-// Настройки CORS
 const corsOptions = {
-    origin: 'http://localhost:5173', // Разрешаем запросы только с фронта на порту 5173
+    origin: 'http://localhost:5173',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true
 };
 
-// Используем CORS с настройками
 app.use(cors(corsOptions));
 
 app.use(express.json());
 app.use(express.text());
 app.use(cookieParser());
+setupSwagger(app);
 
 function authenticateToken(req, res, next) {
     const token = req.cookies.token;
@@ -39,6 +39,34 @@ function authenticateToken(req, res, next) {
     });
 }
 
+/**
+ * @swagger
+ * /files/{id}:
+ *   put:
+ *     summary: Обновление содержимого файла
+ *     tags: [Files]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID файла
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         text/plain:
+ *           schema:
+ *             type: string
+ *             description: Новое содержимое файла
+ *     responses:
+ *       200:
+ *         description: Файл успешно обновлен
+ *       404:
+ *         description: Файл не найден
+ *       500:
+ *         description: Ошибка при сохранении файла
+ */
 app.put('/files/:id', async (req, res) => {
     console.log(`Запрос поступил!!!`);
     const fileId = req.params.id;
@@ -67,16 +95,64 @@ app.put('/files/:id', async (req, res) => {
 
 app.use('/files', fileRoutes);
 
+/**
+ * @swagger
+ * /api/files:
+ *   get:
+ *     summary: Получение списка всех файлов
+ *     tags: [Files]
+ *     responses:
+ *       200:
+ *         description: Список файлов
+ */
 app.get('/api/files', authenticateToken, async (req, res) => {
     const result = await pool.query('SELECT * FROM files');
     res.json(result.rows);
 });
 
+/**
+ * @swagger
+ * /api/actions:
+ *   get:
+ *     summary: Получение списка всех действий с файлами
+ *     tags: [Actions]
+ *     responses:
+ *       200:
+ *         description: Список действий с файлами
+ */
 app.get('/api/actions', authenticateToken, async (req, res) => {
     const result = await pool.query('SELECT * FROM file_actions');
     res.json(result.rows);
 });
 
+/**
+ * @swagger
+ * /api/actions/log:
+ *   post:
+ *     summary: Добавление нового действия с файлом
+ *     tags: [Actions]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - file_id
+ *               - action_type
+ *             properties:
+ *               file_id:
+ *                 type: integer
+ *               action_type:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Действие успешно добавлено
+ *       400:
+ *         description: Ошибка валидации данных
+ *       500:
+ *         description: Ошибка при добавлении действия
+ */
 app.post('/api/actions/log', authenticateToken, async (req, res) => {
     const { file_id, action_type } = req.body;
 
@@ -99,6 +175,32 @@ app.post('/api/actions/log', authenticateToken, async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /api/login:
+ *   post:
+ *     summary: Авторизация администратора
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - username
+ *               - password
+ *             properties:
+ *               username:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Успешный вход
+ *       401:
+ *         description: Неверный логин или пароль
+ */
 app.post('/api/login', async (req, res) => {
     const { username, password } = req.body;
 
@@ -133,4 +235,5 @@ app.post('/api/login', async (req, res) => {
 
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
+    console.log('Swagger доступен на http://localhost:4001/api-docs');
 });
