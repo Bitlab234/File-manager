@@ -39,7 +39,7 @@ async function handleLogin() {
     // Сохраняем токен в куки
     document.cookie = `token=${data.token}; path=/; secure; samesite=strict`;
     console.log(`token=${data.token}; path=/; secure; samesite=strict`);
-    router.push('/adminPanel'); // Переход к админ панели
+    router.push('/adminPanel');
   } catch (err) {
     alert('Ошибка входа: ' + err.message);
   }

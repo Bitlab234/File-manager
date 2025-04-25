@@ -4,26 +4,23 @@ import type { FileItem } from '@/types/file'
 const API_BASE = 'http://localhost:4001/files'
 
 axios.interceptors.request.use(config => {
-  // Получаем токен из cookies
+  // Получаем токен из куки
   const token = document.cookie
     .split('; ')
     .find(row => row.startsWith('token='))
     ?.split('=')[1];
 
-  // Если токен существует, добавляем его в заголовки
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   
-  // Если токена нет, запрос будет отправляться без Authorization заголовка
+  // Если токена нет, отправиться без Authorization
   return config;
 });
 
-
-// Функция для получения всех файлов
 export async function fetchAllFiles(): Promise<FileItem[]> {
   try {
-    const response = await axios.get(`${API_BASE}/all`);  // Запрос на сервер
+    const response = await axios.get(`${API_BASE}/all`);
     return response.data;
   } catch (error) {
     console.error('Ошибка при загрузке всех файлов:', error);

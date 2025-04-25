@@ -8,6 +8,5 @@ export interface FileItem {
   url?: string
   parentId: number | null
 
-  // Временное поле для работы с данными из БД
   parentid?: number | null;
 }

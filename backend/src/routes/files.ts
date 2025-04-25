@@ -3,7 +3,6 @@ import { pool } from '../db';
 
 const router = Router();
 
-// Получить все файлы без фильтрации
 router.get('/all', async (req, res) => {
     try {
       const result = await pool.query('SELECT * FROM files');
@@ -14,12 +13,10 @@ router.get('/all', async (req, res) => {
     }
 });
 
-// Получить все файлы или только по parentId (если указан)
 router.get('/', async (req, res) => {
   const parentIdParam = req.query.parentId as string | undefined;
   try {
     if (parentIdParam === undefined) {
-      // Корневые файлы (где parentId IS NULL)
       const result = await pool.query('SELECT * FROM files WHERE parentId IS NULL');
       res.json(result.rows);
     } else {
@@ -33,7 +30,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Поиск файлов по имени
 router.get('/search', async (req, res) => {
     console.log('Запрос поступил');
     const { q } = req.query;
@@ -51,7 +47,6 @@ router.get('/search', async (req, res) => {
     }
 });
 
-// Получить файл по ID
 router.get('/:id', async (req, res) => {
   const id = parseInt(req.params.id);
   try {

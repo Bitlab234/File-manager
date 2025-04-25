@@ -15,7 +15,6 @@ const files = ref<FileItem[]>([]);
 const currentFolder = ref<FileItem | null>(null);
 const decodedPath = ref<string>('');
 
-// Открытие папки или файла
 async function open(item: FileItem) {
   console.log('Открытие:', item);
   if (item.type === 'folder') {
@@ -31,7 +30,6 @@ async function open(item: FileItem) {
   await logAction(item.id, 'open');
 }
 
-// Загрузка файлов по пути
 async function loadFiles() {
   const folderPath = route.params.folderPath as string || '';
   decodedPath.value = decodeURIComponent(folderPath);
@@ -39,11 +37,9 @@ async function loadFiles() {
   console.log('Декодированный путь папки:', decodedPath.value);
 
   try {
-    // Получаем все файлы из БД
-    const allFiles = await fetchAllFiles(); // Теперь получаем все файлы
+    const allFiles = await fetchAllFiles();
     console.log('Все файлы:', allFiles);
 
-    // Находим нужную папку по имени (например, "Документы")
     const segments = decodedPath.value.split('/').filter(Boolean);
     let parentId: number | null = null;
     let folder: FileItem | undefined;
@@ -53,7 +49,6 @@ async function loadFiles() {
     for (const segment of segments) {
       console.log(`Ищем папку по сегменту: ${segment}`);
 
-      // Ищем папку по имени и parentId
       folder = allFiles.find(file =>
         file.name.toLowerCase() === segment.toLowerCase() &&
         file.type === 'folder'
@@ -66,11 +61,10 @@ async function loadFiles() {
       }
 
       console.log(`Папка найдена: ${folder.name}, parentId: ${folder.parentId}`);
-      parentId = folder.id;  // Обновляем parentId для следующего сегмента
+      parentId = folder.id;
     }
 
     console.log(parentId);
-    // После того как нашли папку, используем её parentId для поиска файлов
     currentFolder.value = folder || null;
     console.log('Текущая папка:', currentFolder.value);
 
@@ -79,7 +73,6 @@ async function loadFiles() {
       console.log(`Файл: ${file.name}, parentId: ${file.parentid}`);
     });
 
-    // Теперь загружаем только файлы, у которых parentId совпадает с найденным
     files.value = allFiles.filter(file => file.parentid === parentId);
     console.log('Файлы в текущей папке:', files.value);
 
@@ -91,7 +84,6 @@ async function loadFiles() {
 
 onMounted(loadFiles);
 
-// Следим за изменением маршрута
 watch(() => route.fullPath, loadFiles);
 </script>
 

@@ -20,7 +20,7 @@ const password = ref('')
 
 function handleRegister() {
     console.log('Регистрация:', name.value, email.value, password.value)
-    // Подключи здесь свой API
+    // тут надо API
 }
 </script>
 
