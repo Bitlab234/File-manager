@@ -54,10 +54,10 @@ const actions = ref([])
 
 onMounted(async () => {
   try {
-    const filesRes = await axios.get('http://localhost:4001/api/files')
+    const filesRes = await axios.get('http://localhost:4001/api/files', { withCredentials: true })
     files.value = filesRes.data
 
-    const actionsRes = await axios.get('http://localhost:4001/api/actions')
+    const actionsRes = await axios.get('http://localhost:4001/api/actions', { withCredentials: true })
     actions.value = actionsRes.data
   } catch (error) {
     console.error('Ошибка при загрузке данных:', error)

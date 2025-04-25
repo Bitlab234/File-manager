@@ -66,7 +66,6 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Обновить содержимое файла (если бы был контент)
 router.patch('/:id', async (req, res) => {
   const id = parseInt(req.params.id);
   const { content } = req.body;

@@ -20,11 +20,29 @@ const router = useRouter();
 const email = ref('')
 const password = ref('')
 
-function handleLogin() {
-    console.log('Логин:', email.value, password.value)
-    // Подключить свой API для логина
-    // Если логин успешен, перенаправляем пользователя, позже проверку добавить
-    router.push('/adminPanel')
+async function handleLogin() {
+  try {
+    const response = await fetch('http://localhost:4001/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        username: email.value,
+        password: password.value
+      })
+    });
+
+    if (!response.ok) throw new Error('Ошибка авторизации');
+
+    const data = await response.json();
+    console.log('Response Data:', data);
+
+    // Сохраняем токен в куки
+    document.cookie = `token=${data.token}; path=/; secure; samesite=strict`;
+    console.log(`token=${data.token}; path=/; secure; samesite=strict`);
+    router.push('/adminPanel'); // Переход к админ панели
+  } catch (err) {
+    alert('Ошибка входа: ' + err.message);
+  }
 }
 </script>
 
@@ -52,7 +70,7 @@ button {
 }
 
 body {
-    background-color: #333; /* Тёмный фон для всей страницы */
-    color: white; /* Белый цвет текста для контраста */
+    background-color: #333;
+    color: white;
 }
 </style>

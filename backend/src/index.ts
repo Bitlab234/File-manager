@@ -3,45 +3,57 @@ import cors from 'cors';
 import fileRoutes from './routes/files';
 import { pool } from './db';
 
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
+import cookieParser from 'cookie-parser';
+
 const app = express();
 const PORT = 4001;
 const fs = require('fs');
+const SECRET = 'kjasdhf98n4c8h2f09hajsdhf9834hf028fhq0938';
 
 // Настройки CORS
 const corsOptions = {
     origin: 'http://localhost:5173', // Разрешаем запросы только с фронта на порту 5173
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
 };
 
 // Используем CORS с настройками
 app.use(cors(corsOptions));
 
-app.use(express.json()); // Для парсинга JSON в запросах
+app.use(express.json());
 app.use(express.text());
+app.use(cookieParser());
+
+function authenticateToken(req, res, next) {
+    const token = req.cookies.token;
+    console.log('Полученные куки:', req.cookies);
+    if (!token) return res.status(401).send('Unauthorized');
+
+    jwt.verify(token, SECRET, (err, user) => {
+        if (err) return res.sendStatus(403);
+        req.user = user;
+        next();
+    });
+}
 
 app.put('/files/:id', async (req, res) => {
     console.log(`Запрос поступил!!!`);
     const fileId = req.params.id;
-    const updatedContent = req.body; // Получаем обновленный контент из тела запроса
-  
+    const updatedContent = req.body;
+
     try {
-        // Логируем запрос на обновление
         console.log(`Обновление файла с ID: ${fileId}`);
 
-        // Путь к файлу из базы данных
         const result = await pool.query('SELECT url FROM files WHERE id = $1', [fileId]);
         if (result.rows.length === 0) {
             return res.status(404).send('Файл не найден');
         }
 
-        // Извлекаем путь к файлу и исправляем его
         let filePath = result.rows[0].url.replace(/^\/?backend[\\/]/, '');
-        // Логируем путь к файлу
         console.log(`Путь к файлу: ${filePath}`);
-
-        // Сохраняем содержимое в файл
-        console.log('Попытка записи в файл...');
         fs.chmodSync(filePath, 0o666);
         fs.writeFileSync(filePath, updatedContent, 'utf8');
         console.log(`Файл с ID ${fileId} успешно обновлен.`);
@@ -53,21 +65,19 @@ app.put('/files/:id', async (req, res) => {
     }
 });
 
-// Подключаем маршруты
 app.use('/files', fileRoutes);
 
-//для админ панели
-app.get('/api/files', async (req, res) => {
+app.get('/api/files', authenticateToken, async (req, res) => {
     const result = await pool.query('SELECT * FROM files');
     res.json(result.rows);
 });
 
-app.get('/api/actions', async (req, res) => {
+app.get('/api/actions', authenticateToken, async (req, res) => {
     const result = await pool.query('SELECT * FROM file_actions');
     res.json(result.rows);
 });
 
-app.post('/api/actions/log', async (req, res) => {
+app.post('/api/actions/log', authenticateToken, async (req, res) => {
     const { file_id, action_type } = req.body;
 
     if (!file_id || !action_type) {
@@ -89,7 +99,38 @@ app.post('/api/actions/log', async (req, res) => {
     }
 });
 
+app.post('/api/login', async (req, res) => {
+    const { username, password } = req.body;
+
+    try {
+        const result = await pool.query('SELECT * FROM admins WHERE username = $1', [username]);
+        const user = result.rows[0];
+
+        if (!user) {
+            return res.status(401).json({ error: 'Неверный логин или пароль' });
+        }
+
+        const valid = await bcrypt.compare(password, user.password);
+        if (!valid) {
+            return res.status(401).json({ error: 'Неверный логин или пароль' });
+        }
+
+        const token = jwt.sign({ id: user.id, role: user.role }, SECRET, { expiresIn: '1h' });
+
+        res.cookie('token', token, {
+            httpOnly: true,
+            maxAge: 3600000,
+            path: '/',
+        });
+
+        res.status(200).json({ token, message: 'Успешный вход' });
+
+    } catch (err) {
+        console.error('Ошибка входа:', err);
+        res.status(500).json({ error: 'Ошибка сервера' });
+    }
+});
 
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`Server running on http://localhost:${PORT}`);
 });
